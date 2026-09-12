@@ -14,7 +14,6 @@
       background: #f4f7f5;
       margin: 0;
       padding: 20px;
-      text-align: center;
     }
 
     .container {
@@ -26,6 +25,10 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
+    .header {
+      text-align: center;
+    }
+
     h1 {
       color: #0b5d1e;
       margin-bottom: 5px;
@@ -33,19 +36,34 @@
 
     .subtitle {
       color: #555;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
+    }
+
+    .section {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8faf8;
+      border-radius: 10px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0b5d1e;
+      margin-bottom: 15px;
     }
 
     #reader {
       width: 100%;
-      margin: 20px auto;
+      margin: 15px auto;
     }
 
     select,
+    input,
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 15px;
+      margin-top: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 16px;
@@ -57,21 +75,36 @@
       color: white;
       border: none;
       cursor: pointer;
+      font-weight: bold;
     }
 
     button:hover {
       opacity: 0.9;
     }
 
+    .manual-button {
+      background: #333;
+    }
+
     #status {
+      text-align: center;
       margin-top: 15px;
       font-weight: bold;
+      color: #555;
+    }
+
+    .or {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+      color: #888;
     }
 
     .instructions {
-      color: #555;
+      text-align: center;
+      color: #666;
       font-size: 14px;
-      margin-top: 15px;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -80,27 +113,70 @@
 
 <div class="container">
 
-  <h1>NDIAS 2026</h1>
-
-  <div class="subtitle">
-    Attendance Verification Scanner
+  <div class="header">
+    <h1>NDIAS 2026</h1>
+    <div class="subtitle">
+      Attendance Verification Scanner
+    </div>
   </div>
 
-  <select id="cameraSelect">
-    <option>Loading cameras...</option>
-  </select>
 
-  <div id="reader"></div>
+  <!-- QR SCANNER -->
 
-  <div id="status">
-    Starting camera...
+  <div class="section">
+
+    <div class="section-title">
+      📷 Scan Participant QR Code
+    </div>
+
+    <select id="cameraSelect">
+      <option>Loading cameras...</option>
+    </select>
+
+    <div id="reader"></div>
+
+    <div id="status">
+      Starting camera...
+    </div>
+
+    <div class="instructions">
+      Point the camera at the participant's QR code.
+    </div>
+
   </div>
 
-  <div class="instructions">
-    Point the camera at the participant's NDIAS QR code.
+
+  <div class="or">
+    — OR —
+  </div>
+
+
+  <!-- MANUAL PARTICIPANT ID -->
+
+  <div class="section">
+
+    <div class="section-title">
+      ⌨️ Enter Participant ID
+    </div>
+
+    <input
+      type="text"
+      id="participantID"
+      placeholder="Example: NDIAS/1.0/26/005"
+      autocomplete="off"
+    >
+
+    <button
+      class="manual-button"
+      onclick="verifyParticipant()"
+    >
+      VERIFY PARTICIPANT
+    </button>
+
   </div>
 
 </div>
+
 
 <script>
 
@@ -112,16 +188,22 @@ let cameras = [];
 let scanning = false;
 
 
-/* GET AVAILABLE CAMERAS */
+/*
+ * LOAD AVAILABLE CAMERAS
+ */
 
 async function loadCameras() {
 
-  const status = document.getElementById("status");
-  const select = document.getElementById("cameraSelect");
+  const select =
+    document.getElementById("cameraSelect");
+
+  const status =
+    document.getElementById("status");
 
   try {
 
-    cameras = await Html5Qrcode.getCameras();
+    cameras =
+      await Html5Qrcode.getCameras();
 
     select.innerHTML = "";
 
@@ -131,42 +213,78 @@ async function loadCameras() {
         "<option>No camera found</option>";
 
       status.textContent =
-        "No camera was found on this device.";
+        "No camera was found.";
 
       return;
     }
 
-    cameras.forEach((camera, index) => {
 
-      const option = document.createElement("option");
+    cameras.forEach(function(camera, index) {
 
-      option.value = camera.id;
+      const option =
+        document.createElement("option");
+
+      option.value =
+        camera.id;
 
       option.textContent =
-        camera.label || "Camera " + (index + 1);
+        camera.label ||
+        "Camera " + (index + 1);
 
       select.appendChild(option);
 
     });
 
-    status.textContent =
-      "Camera ready. Point it at the QR code.";
 
-    startScanner(cameras[0].id);
+    /*
+     * TRY TO SELECT THE BACK CAMERA
+     * WHEN AVAILABLE
+     */
+
+    let preferredCamera = cameras[0];
+
+    for (let i = 0; i < cameras.length; i++) {
+
+      const label =
+        (cameras[i].label || "").toLowerCase();
+
+      if (
+        label.includes("back") ||
+        label.includes("rear") ||
+        label.includes("environment")
+      ) {
+
+        preferredCamera = cameras[i];
+
+        break;
+      }
+    }
+
+
+    select.value =
+      preferredCamera.id;
+
+    startScanner(
+      preferredCamera.id
+    );
 
   } catch (error) {
 
     console.error(error);
 
+    select.innerHTML =
+      "<option>Camera access failed</option>";
+
     status.textContent =
       "Camera permission was not granted.";
 
   }
-
 }
 
 
-/* START SCANNER */
+/*
+ * START QR SCANNER
+ */
 
 function startScanner(cameraId) {
 
@@ -174,7 +292,8 @@ function startScanner(cameraId) {
     return;
   }
 
-  scanner = new Html5Qrcode("reader");
+  scanner =
+    new Html5Qrcode("reader");
 
   scanner.start(
 
@@ -182,6 +301,7 @@ function startScanner(cameraId) {
 
     {
       fps: 10,
+
       qrbox: {
         width: 250,
         height: 250
@@ -192,88 +312,191 @@ function startScanner(cameraId) {
 
       scanning = false;
 
-      document.getElementById("status").textContent =
-        "QR code detected. Opening participant record...";
+      document.getElementById("status")
+        .textContent =
+        "QR detected. Opening participant record...";
 
-      scanner.stop().then(function() {
 
-        scanner.clear();
+      const participantID =
+        encodeURIComponent(
+          decodedText.trim()
+        );
 
-        /*
-          SEND PARTICIPANT ID TO OUR
-          EXISTING GOOGLE APPS SCRIPT
-        */
 
-        const participantID =
-          encodeURIComponent(decodedText.trim());
+      scanner.stop()
+        .then(function() {
 
-        window.location.href =
-          APPS_SCRIPT_URL + "?id=" + participantID;
+          scanner.clear();
 
-      }).catch(function() {
+          openVerification(
+            participantID
+          );
 
-        const participantID =
-          encodeURIComponent(decodedText.trim());
+        })
+        .catch(function() {
 
-        window.location.href =
-          APPS_SCRIPT_URL + "?id=" + participantID;
+          openVerification(
+            participantID
+          );
 
-      });
+        });
 
     },
 
     function(errorMessage) {
 
-      // Normal QR scanning errors are ignored.
+      // Normal scanning errors are ignored.
 
     }
 
-  ).then(function() {
+  )
+  .then(function() {
 
     scanning = true;
 
-  }).catch(function(error) {
+    document.getElementById("status")
+      .textContent =
+      "Camera ready. Scan the QR code.";
+
+  })
+  .catch(function(error) {
 
     console.error(error);
 
-    document.getElementById("status").textContent =
+    document.getElementById("status")
+      .textContent =
       "Unable to start this camera.";
 
   });
-
 }
 
 
-/* SWITCH CAMERA */
+/*
+ * SWITCH CAMERA
+ */
 
 document.getElementById("cameraSelect")
-  .addEventListener("change", function() {
+  .addEventListener(
+    "change",
+    function() {
 
-    const selectedCamera = this.value;
+      const selectedCamera =
+        this.value;
 
-    if (!scanner) {
-      startScanner(selectedCamera);
-      return;
+      if (!selectedCamera) {
+        return;
+      }
+
+      scanning = false;
+
+
+      if (!scanner) {
+
+        startScanner(
+          selectedCamera
+        );
+
+        return;
+      }
+
+
+      scanner.stop()
+        .then(function() {
+
+          scanner.clear();
+
+          startScanner(
+            selectedCamera
+          );
+
+        })
+        .catch(function() {
+
+          startScanner(
+            selectedCamera
+          );
+
+        });
+
+    }
+  );
+
+
+/*
+ * MANUAL ID VERIFICATION
+ */
+
+function verifyParticipant() {
+
+  const input =
+    document.getElementById(
+      "participantID"
+    );
+
+  const value =
+    input.value.trim();
+
+
+  if (!value) {
+
+    alert(
+      "Please enter a Participant ID."
+    );
+
+    input.focus();
+
+    return;
+  }
+
+
+  const participantID =
+    encodeURIComponent(value);
+
+
+  openVerification(
+    participantID
+  );
+}
+
+
+/*
+ * OPEN GOOGLE VERIFICATION PAGE
+ */
+
+function openVerification(
+  participantID
+) {
+
+  window.location.href =
+    APPS_SCRIPT_URL +
+    "?id=" +
+    participantID;
+}
+
+
+/*
+ * ALLOW ENTER KEY
+ */
+
+document.getElementById(
+  "participantID"
+).addEventListener(
+  "keypress",
+  function(event) {
+
+    if (event.key === "Enter") {
+
+      verifyParticipant();
+
     }
 
-    scanning = false;
-
-    scanner.stop().then(function() {
-
-      scanner.clear();
-
-      startScanner(selectedCamera);
-
-    }).catch(function() {
-
-      startScanner(selectedCamera);
-
-    });
-
-  });
+  }
+);
 
 
-/* START */
+/*
+ * START CAMERA
+ */
 
 loadCameras();
 
