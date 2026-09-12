@@ -21,7 +21,7 @@
       max-width: 600px;
       margin: auto;
       background: white;
-      padding: 20px;
+      padding: 25px;
       border-radius: 15px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
@@ -38,16 +38,18 @@
 
     #reader {
       width: 100%;
-      margin: auto;
+      margin: 20px auto;
     }
 
-    select, button {
+    select,
+    button {
       width: 100%;
       padding: 14px;
       margin-top: 15px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box;
     }
 
     button {
@@ -57,18 +59,19 @@
       cursor: pointer;
     }
 
-    #result {
-      margin-top: 20px;
-      padding: 15px;
-      border-radius: 10px;
-      background: #eef7ef;
-      display: none;
-      word-break: break-word;
+    button:hover {
+      opacity: 0.9;
     }
 
-    .success {
-      color: #0b5d1e;
+    #status {
+      margin-top: 15px;
       font-weight: bold;
+    }
+
+    .instructions {
+      color: #555;
+      font-size: 14px;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -78,7 +81,10 @@
 <div class="container">
 
   <h1>NDIAS 2026</h1>
-  <div class="subtitle">QR Attendance Scanner</div>
+
+  <div class="subtitle">
+    Attendance Verification Scanner
+  </div>
 
   <select id="cameraSelect">
     <option>Loading cameras...</option>
@@ -86,30 +92,47 @@
 
   <div id="reader"></div>
 
-  <div id="result">
-    <div class="success">QR CODE DETECTED</div>
-    <p id="participantID"></p>
+  <div id="status">
+    Starting camera...
+  </div>
+
+  <div class="instructions">
+    Point the camera at the participant's NDIAS QR code.
   </div>
 
 </div>
 
 <script>
 
-let scanner;
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbyhI6L_2ty0vNlPPyjPe05OIAdxjZlf4lskTTKnWqcKxRMvOMEN-wDBE9S_5HfMpnFE/exec";
+
+let scanner = null;
 let cameras = [];
+let scanning = false;
+
+
+/* GET AVAILABLE CAMERAS */
 
 async function loadCameras() {
+
+  const status = document.getElementById("status");
+  const select = document.getElementById("cameraSelect");
 
   try {
 
     cameras = await Html5Qrcode.getCameras();
 
-    const select = document.getElementById("cameraSelect");
-
     select.innerHTML = "";
 
-    if (cameras.length === 0) {
-      select.innerHTML = "<option>No camera found</option>";
+    if (!cameras || cameras.length === 0) {
+
+      select.innerHTML =
+        "<option>No camera found</option>";
+
+      status.textContent =
+        "No camera was found on this device.";
+
       return;
     }
 
@@ -126,32 +149,37 @@ async function loadCameras() {
 
     });
 
+    status.textContent =
+      "Camera ready. Point it at the QR code.";
+
     startScanner(cameras[0].id);
-
-    select.addEventListener("change", function() {
-
-      restartScanner(this.value);
-
-    });
 
   } catch (error) {
 
-    document.getElementById("cameraSelect").innerHTML =
-      "<option>Camera access failed</option>";
-
     console.error(error);
+
+    status.textContent =
+      "Camera permission was not granted.";
 
   }
 
 }
 
 
+/* START SCANNER */
+
 function startScanner(cameraId) {
+
+  if (scanning) {
+    return;
+  }
 
   scanner = new Html5Qrcode("reader");
 
   scanner.start(
+
     cameraId,
+
     {
       fps: 10,
       qrbox: {
@@ -162,56 +190,90 @@ function startScanner(cameraId) {
 
     function(decodedText) {
 
-      document.getElementById("participantID").textContent =
-        "Participant ID: " + decodedText;
+      scanning = false;
 
-      document.getElementById("result").style.display = "block";
+      document.getElementById("status").textContent =
+        "QR code detected. Opening participant record...";
 
-      scanner.stop();
+      scanner.stop().then(function() {
+
+        scanner.clear();
+
+        /*
+          SEND PARTICIPANT ID TO OUR
+          EXISTING GOOGLE APPS SCRIPT
+        */
+
+        const participantID =
+          encodeURIComponent(decodedText.trim());
+
+        window.location.href =
+          APPS_SCRIPT_URL + "?id=" + participantID;
+
+      }).catch(function() {
+
+        const participantID =
+          encodeURIComponent(decodedText.trim());
+
+        window.location.href =
+          APPS_SCRIPT_URL + "?id=" + participantID;
+
+      });
 
     },
 
     function(errorMessage) {
 
-      // Ignore normal scanning errors
+      // Normal QR scanning errors are ignored.
 
     }
 
-  ).catch(function(error) {
+  ).then(function() {
+
+    scanning = true;
+
+  }).catch(function(error) {
 
     console.error(error);
+
+    document.getElementById("status").textContent =
+      "Unable to start this camera.";
 
   });
 
 }
 
 
-function restartScanner(cameraId) {
+/* SWITCH CAMERA */
 
-  if (scanner) {
+document.getElementById("cameraSelect")
+  .addEventListener("change", function() {
 
-    scanner.stop()
-      .then(function() {
+    const selectedCamera = this.value;
 
-        scanner.clear();
+    if (!scanner) {
+      startScanner(selectedCamera);
+      return;
+    }
 
-        startScanner(cameraId);
+    scanning = false;
 
-      })
-      .catch(function() {
+    scanner.stop().then(function() {
 
-        startScanner(cameraId);
+      scanner.clear();
 
-      });
+      startScanner(selectedCamera);
 
-  } else {
+    }).catch(function() {
 
-    startScanner(cameraId);
+      startScanner(selectedCamera);
 
-  }
+    });
 
-}
+  });
 
+
+/* START */
 
 loadCameras();
 
