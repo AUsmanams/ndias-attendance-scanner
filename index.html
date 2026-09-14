@@ -32,8 +32,6 @@
       color: #222;
     }
 
-    /* MAIN CONTAINER */
-
     .container {
       width: 100%;
       max-width: 620px;
@@ -44,7 +42,6 @@
       box-shadow:
         0 10px 35px rgba(0, 0, 0, 0.12);
     }
-
 
     /* HEADER */
 
@@ -88,14 +85,12 @@
       margin: 0;
       font-size: 30px;
       font-weight: 800;
-      letter-spacing: 0.5px;
     }
 
     .header .subtitle {
       margin-top: 7px;
       font-size: 15px;
       color: #e8f5eb;
-      font-weight: 500;
     }
 
     .organization {
@@ -106,15 +101,11 @@
       color: #f4c542;
     }
 
-
     /* CONTENT */
 
     .content {
       padding: 22px;
     }
-
-
-    /* INFORMATION BANNER */
 
     .info-banner {
       background: #f1f8f2;
@@ -130,7 +121,6 @@
     .info-banner strong {
       color: #0b5d1e;
     }
-
 
     /* SECTIONS */
 
@@ -149,8 +139,7 @@
       margin-bottom: 14px;
     }
 
-
-    /* CAMERA SELECT */
+    /* FORM ELEMENTS */
 
     select,
     input,
@@ -172,8 +161,7 @@
         0 0 0 3px rgba(11, 93, 30, 0.10);
     }
 
-
-    /* QR READER */
+    /* CAMERA */
 
     #reader {
       width: 100%;
@@ -181,14 +169,15 @@
       border-radius: 12px;
       overflow: hidden;
       background: #111;
+      min-height: 20px;
     }
 
     #reader video {
+      width: 100% !important;
       border-radius: 10px;
     }
 
-
-    /* BUTTON */
+    /* BUTTONS */
 
     button {
       background:
@@ -215,6 +204,26 @@
       transform: scale(0.98);
     }
 
+    .start-button {
+      background:
+        linear-gradient(
+          135deg,
+          #0b5d1e,
+          #07852d
+        );
+      font-size: 17px;
+      padding: 15px;
+    }
+
+    .stop-button {
+      background:
+        linear-gradient(
+          135deg,
+          #8b1e1e,
+          #b52b2b
+        );
+    }
+
     .manual-button {
       background:
         linear-gradient(
@@ -223,7 +232,6 @@
           #555555
         );
     }
-
 
     /* STATUS */
 
@@ -238,7 +246,6 @@
       color: #555;
     }
 
-
     /* DIVIDER */
 
     .or {
@@ -249,7 +256,6 @@
       font-size: 13px;
     }
 
-
     /* INSTRUCTIONS */
 
     .instructions {
@@ -259,7 +265,6 @@
       line-height: 1.5;
       margin-top: 10px;
     }
-
 
     /* EVENT DETAILS */
 
@@ -284,7 +289,6 @@
       color: #eaf5ec;
     }
 
-
     /* FOOTER */
 
     .footer {
@@ -299,7 +303,6 @@
     .footer strong {
       color: #0b5d1e;
     }
-
 
     /* MOBILE */
 
@@ -347,150 +350,186 @@
 
 <body>
 
-  <div class="container">
+<div class="container">
 
 
-    <!-- HEADER -->
+  <!-- HEADER -->
 
-    <div class="header">
+  <div class="header">
 
-      <img
-        src="nazas-logo.png"
-        alt="NAZAS Logo"
-        class="nazas-logo"
-      >
+    <img
+      src="nazas-logo.png"
+      alt="NAZAS Logo"
+      class="nazas-logo"
+    >
 
-      <h1>NDIAS 2026</h1>
+    <h1>NDIAS 2026</h1>
 
-      <div class="subtitle">
-        Attendance Verification Scanner
-      </div>
-
-      <div class="organization">
-        NATIONAL ASSOCIATION OF ZAZZAU STUDENTS
-      </div>
-
+    <div class="subtitle">
+      Attendance Verification Scanner
     </div>
 
-
-    <!-- CONTENT -->
-
-    <div class="content">
-
-
-      <!-- INFORMATION -->
-
-      <div class="info-banner">
-        <strong>NDIAS 2026 Attendance System</strong><br>
-        Scan a participant's QR code to verify their registration
-        and proceed to attendance check-in.
-      </div>
-
-
-      <!-- QR SCANNER -->
-
-      <div class="section">
-
-        <div class="section-title">
-          📷 Scan Participant QR Code
-        </div>
-
-
-        <select id="cameraSelect">
-          <option>Loading cameras...</option>
-        </select>
-
-
-        <div id="reader"></div>
-
-
-        <div id="status">
-          Starting camera...
-        </div>
-
-
-        <div class="instructions">
-          Point the camera steadily at the participant's QR code.
-          <br>
-          The participant record will open automatically when detected.
-        </div>
-
-      </div>
-
-
-      <!-- DIVIDER -->
-
-      <div class="or">
-        — OR —
-      </div>
-
-
-      <!-- MANUAL PARTICIPANT ID -->
-
-      <div class="section">
-
-        <div class="section-title">
-          ⌨️ Enter Participant ID
-        </div>
-
-
-        <input
-          type="text"
-          id="participantID"
-          placeholder="Example: NDIAS/1.0/26/005"
-          autocomplete="off"
-          autocapitalize="characters"
-          spellcheck="false"
-        >
-
-
-        <button
-          class="manual-button"
-          onclick="verifyParticipant()"
-        >
-          VERIFY PARTICIPANT
-        </button>
-
-      </div>
-
-
-      <!-- EVENT DETAILS -->
-
-      <div class="event-details">
-
-        <div class="event-details-title">
-          NDIAS 2026
-        </div>
-
-        <p>
-          Training: 21st – 23rd September 2026
-        </p>
-
-        <p>
-          Graduation: 26th September 2026
-        </p>
-
-        <p>
-          Federal University of Education, Zaria — Theatre One
-        </p>
-
-      </div>
-
-    </div>
-
-
-    <!-- FOOTER -->
-
-    <div class="footer">
-
-      <strong>NAZAS NATIONAL BODY</strong>
-      <br>
-      NDIAS 2026 • Digital Innovation & AI Summit
-        <br>
-      Developed by YDTech $ AUconnection
+    <div class="organization">
+      NATIONAL ASSOCIATION OF ZAZZAU STUDENTS
     </div>
 
   </div>
+
+
+  <!-- CONTENT -->
+
+  <div class="content">
+
+
+    <!-- INFORMATION -->
+
+    <div class="info-banner">
+      <strong>NDIAS 2026 Attendance System</strong><br>
+      Scan a participant's QR code to verify registration
+      and proceed to attendance check-in.
+    </div>
+
+
+    <!-- QR SCANNER -->
+
+    <div class="section">
+
+      <div class="section-title">
+        📷 Scan Participant QR Code
+      </div>
+
+
+      <!-- START CAMERA -->
+
+      <button
+        id="startCameraButton"
+        class="start-button"
+        onclick="startCamera()"
+      >
+        📷 START CAMERA
+      </button>
+
+
+      <!-- CAMERA SELECT -->
+
+      <select
+        id="cameraSelect"
+        disabled
+      >
+        <option>
+          Start camera first
+        </option>
+      </select>
+
+
+      <!-- QR READER -->
+
+      <div id="reader"></div>
+
+
+      <!-- STOP CAMERA -->
+
+      <button
+        id="stopCameraButton"
+        class="stop-button"
+        onclick="stopScanner()"
+        style="display:none;"
+      >
+        ⏹ STOP CAMERA
+      </button>
+
+
+      <!-- STATUS -->
+
+      <div id="status">
+        Tap "START CAMERA" to begin scanning.
+      </div>
+
+
+      <div class="instructions">
+        Allow camera permission when your browser asks.
+        <br>
+        For best results, use the rear camera.
+      </div>
+
+    </div>
+
+
+    <!-- DIVIDER -->
+
+    <div class="or">
+      — OR —
+    </div>
+
+
+    <!-- MANUAL PARTICIPANT ID -->
+
+    <div class="section">
+
+      <div class="section-title">
+        ⌨️ Enter Participant ID
+      </div>
+
+
+      <input
+        type="text"
+        id="participantID"
+        placeholder="Example: NDIAS/1.0/26/005"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+      >
+
+
+      <button
+        class="manual-button"
+        onclick="verifyParticipant()"
+      >
+        VERIFY PARTICIPANT
+      </button>
+
+    </div>
+
+
+    <!-- EVENT DETAILS -->
+
+    <div class="event-details">
+
+      <div class="event-details-title">
+        NDIAS 2026
+      </div>
+
+      <p>
+        Training: 21st – 23rd September 2026
+      </p>
+
+      <p>
+        Graduation: 26th September 2026
+      </p>
+
+      <p>
+        Federal University of Education, Zaria — Theatre One
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- FOOTER -->
+
+  <div class="footer">
+
+    <strong>NAZAS NATIONAL BODY</strong>
+
+    <br>
+
+    NDIAS 2026 • Digital Innovation & AI Summit
+      <br>
+Developed by: YDTech $ AUconnection
+  </div>
+
+</div>
 
 
 
@@ -511,16 +550,216 @@ let scanning = false;
 
 
 /*
- * LOAD AVAILABLE CAMERAS
+ * START CAMERA
+ *
+ * IMPORTANT:
+ * We first start using the
+ * environment/rear camera.
+ *
+ * This is more reliable on
+ * Android mobile browsers.
+ */
+
+async function startCamera() {
+
+  const status =
+    document.getElementById("status");
+
+  const startButton =
+    document.getElementById("startCameraButton");
+
+  const stopButton =
+    document.getElementById("stopCameraButton");
+
+  const cameraSelect =
+    document.getElementById("cameraSelect");
+
+
+  if (scanning) {
+    return;
+  }
+
+
+  status.textContent =
+    "Requesting camera permission...";
+
+
+  startButton.disabled = true;
+
+
+  try {
+
+    /*
+     * Clean previous scanner
+     */
+
+    if (scanner) {
+
+      try {
+        await scanner.clear();
+      } catch (e) {
+        console.log(e);
+      }
+
+      scanner = null;
+    }
+
+
+    /*
+     * Create QR scanner
+     */
+
+    scanner =
+      new Html5Qrcode("reader");
+
+
+    /*
+     * Start with rear camera
+     */
+
+    await scanner.start(
+
+      {
+        facingMode: "environment"
+      },
+
+      {
+        fps: 10,
+
+        qrbox: function(
+          viewfinderWidth,
+          viewfinderHeight
+        ) {
+
+          const size =
+            Math.min(
+              viewfinderWidth,
+              viewfinderHeight
+            ) * 0.70;
+
+          return {
+            width: size,
+            height: size
+          };
+
+        },
+
+        aspectRatio: 1.0
+
+      },
+
+
+      function(decodedText) {
+
+        handleQRCode(decodedText);
+
+      },
+
+
+      function(errorMessage) {
+
+        /*
+         * Normal scanning errors
+         * are ignored.
+         */
+
+      }
+
+    );
+
+
+    scanning = true;
+
+
+    stopButton.style.display =
+      "block";
+
+
+    startButton.textContent =
+      "✓ CAMERA RUNNING";
+
+
+    status.textContent =
+      "Camera ready. Point it at the participant's QR code.";
+
+
+    /*
+     * Now that permission has been granted,
+     * load the actual camera list.
+     */
+
+    await loadCameras();
+
+
+  }
+
+
+  catch (error) {
+
+    console.error(
+      "Camera error:",
+      error
+    );
+
+
+    scanning = false;
+
+
+    startButton.disabled = false;
+
+
+    startButton.textContent =
+      "📷 START CAMERA";
+
+
+    stopButton.style.display =
+      "none";
+
+
+    if (
+      error &&
+      (
+        String(error)
+          .toLowerCase()
+          .includes("permission")
+        ||
+        String(error)
+          .toLowerCase()
+          .includes("notallowed")
+      )
+    ) {
+
+      status.textContent =
+        "Camera permission was denied. Please allow camera access in your browser settings and try again.";
+
+    }
+
+    else {
+
+      status.textContent =
+        "Unable to start the camera. Please check that your camera is available.";
+
+    }
+
+  }
+
+}
+
+
+
+/*
+ * LOAD CAMERAS
+ *
+ * This happens AFTER
+ * camera permission.
  */
 
 async function loadCameras() {
 
   const select =
-    document.getElementById("cameraSelect");
-
-  const status =
-    document.getElementById("status");
+    document.getElementById(
+      "cameraSelect"
+    );
 
 
   try {
@@ -529,43 +768,55 @@ async function loadCameras() {
       await Html5Qrcode.getCameras();
 
 
-    select.innerHTML = "";
+    select.innerHTML =
+      "";
 
 
-    if (!cameras || cameras.length === 0) {
+    if (
+      !cameras ||
+      cameras.length === 0
+    ) {
 
       select.innerHTML =
-        "<option>No camera found</option>";
+        "<option>Camera unavailable</option>";
 
-      status.textContent =
-        "No camera was found. Please check your camera permission.";
+      select.disabled =
+        true;
 
       return;
+
     }
 
 
-    cameras.forEach(function(camera, index) {
+    cameras.forEach(
+      function(camera, index) {
 
-      const option =
-        document.createElement("option");
-
-
-      option.value =
-        camera.id;
-
-
-      option.textContent =
-        camera.label ||
-        "Camera " + (index + 1);
+        const option =
+          document.createElement(
+            "option"
+          );
 
 
-      select.appendChild(option);
+        option.value =
+          camera.id;
 
-    });
+
+        option.textContent =
+          camera.label ||
+          "Camera " +
+          (index + 1);
+
+
+        select.appendChild(
+          option
+        );
+
+      }
+    );
 
 
     /*
-     * PREFER BACK CAMERA
+     * Find rear camera.
      */
 
     let preferredCamera =
@@ -579,8 +830,10 @@ async function loadCameras() {
     ) {
 
       const label =
-        (cameras[i].label || "")
-          .toLowerCase();
+        (
+          cameras[i].label ||
+          ""
+        ).toLowerCase();
 
 
       if (
@@ -603,24 +856,18 @@ async function loadCameras() {
       preferredCamera.id;
 
 
-    startScanner(
-      preferredCamera.id
-    );
+    select.disabled =
+      false;
 
   }
 
 
   catch (error) {
 
-    console.error(error);
-
-
-    select.innerHTML =
-      "<option>Camera access failed</option>";
-
-
-    status.textContent =
-      "Camera access failed. Please allow camera permission and refresh the page.";
+    console.error(
+      "Camera list error:",
+      error
+    );
 
   }
 
@@ -629,140 +876,63 @@ async function loadCameras() {
 
 
 /*
- * START QR SCANNER
+ * HANDLE QR CODE
  */
 
-function startScanner(cameraId) {
+async function handleQRCode(
+  decodedText
+) {
 
-
-  if (scanning) {
+  if (!decodedText || !scanning) {
     return;
   }
 
 
-  if (scanner) {
+  scanning = false;
 
-    try {
-      scanner.clear();
-    } catch (e) {
-      console.log(e);
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  status.textContent =
+    "✓ QR detected. Opening participant record...";
+
+
+  const participantID =
+    encodeURIComponent(
+      decodedText.trim()
+    );
+
+
+  try {
+
+    if (scanner) {
+
+      await scanner.stop();
+
+      await scanner.clear();
+
     }
 
   }
 
 
-  scanner =
-    new Html5Qrcode("reader");
+  catch (error) {
+
+    console.log(
+      "Scanner stop:",
+      error
+    );
+
+  }
 
 
-  scanner.start(
-
-    cameraId,
-
-    {
-
-      fps: 10,
-
-      qrbox: function(
-        viewfinderWidth,
-        viewfinderHeight
-      ) {
-
-        const size =
-          Math.min(
-            viewfinderWidth,
-            viewfinderHeight
-          ) * 0.70;
-
-        return {
-          width: size,
-          height: size
-        };
-
-      }
-
-    },
-
-
-    function(decodedText) {
-
-
-      scanning = false;
-
-
-      document.getElementById("status")
-        .textContent =
-        "QR detected. Opening participant record...";
-
-
-      const participantID =
-        encodeURIComponent(
-          decodedText.trim()
-        );
-
-
-      scanner.stop()
-
-        .then(function() {
-
-          scanner.clear();
-
-
-          openVerification(
-            participantID
-          );
-
-        })
-
-
-        .catch(function() {
-
-          openVerification(
-            participantID
-          );
-
-        });
-
-    },
-
-
-    function(errorMessage) {
-
-      /*
-       * NORMAL QR SCANNING ERRORS
-       * ARE IGNORED.
-       */
-
-    }
-
-  )
-
-
-  .then(function() {
-
-    scanning = true;
-
-
-    document.getElementById("status")
-      .textContent =
-      "Camera ready. Scan the QR code.";
-
-  })
-
-
-  .catch(function(error) {
-
-    console.error(error);
-
-
-    scanning = false;
-
-
-    document.getElementById("status")
-      .textContent =
-      "Unable to start this camera. Please check camera permission.";
-
-  });
+  openVerification(
+    participantID
+  );
 
 }
 
@@ -772,69 +942,214 @@ function startScanner(cameraId) {
  * SWITCH CAMERA
  */
 
-document.getElementById("cameraSelect")
-  .addEventListener(
-    "change",
-    function() {
+document.getElementById(
+  "cameraSelect"
+)
+.addEventListener(
+  "change",
+  async function() {
 
 
-      const selectedCamera =
-        this.value;
+    const selectedCamera =
+      this.value;
 
 
-      if (!selectedCamera) {
-        return;
-      }
+    if (
+      !selectedCamera ||
+      !scanner ||
+      !scanning
+    ) {
 
-
-      scanning = false;
-
-
-      if (!scanner) {
-
-        startScanner(
-          selectedCamera
-        );
-
-        return;
-
-      }
-
-
-      scanner.stop()
-
-
-        .then(function() {
-
-          scanner.clear();
-
-
-          startScanner(
-            selectedCamera
-          );
-
-        })
-
-
-        .catch(function() {
-
-          startScanner(
-            selectedCamera
-          );
-
-        });
+      return;
 
     }
-  );
+
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+
+    status.textContent =
+      "Switching camera...";
+
+
+    scanning = false;
+
+
+    try {
+
+      await scanner.stop();
+
+
+      await scanner.clear();
+
+
+      scanner =
+        new Html5Qrcode(
+          "reader"
+        );
+
+
+      await scanner.start(
+
+        selectedCamera,
+
+        {
+
+          fps: 10,
+
+          qrbox: function(
+            viewfinderWidth,
+            viewfinderHeight
+          ) {
+
+            const size =
+              Math.min(
+                viewfinderWidth,
+                viewfinderHeight
+              ) * 0.70;
+
+
+            return {
+              width: size,
+              height: size
+            };
+
+          },
+
+          aspectRatio: 1.0
+
+        },
+
+
+        function(decodedText) {
+
+          handleQRCode(
+            decodedText
+          );
+
+        },
+
+
+        function(errorMessage) {
+
+          /*
+           * Normal scanning errors
+           * are ignored.
+           */
+
+        }
+
+      );
+
+
+      scanning = true;
+
+
+      status.textContent =
+        "Camera ready. Scan the QR code.";
+
+    }
+
+
+    catch (error) {
+
+      console.error(
+        "Camera switch error:",
+        error
+      );
+
+
+      status.textContent =
+        "Unable to switch camera.";
+
+    }
+
+  }
+);
 
 
 
 /*
- * MANUAL PARTICIPANT ID VERIFICATION
+ * STOP CAMERA
+ */
+
+async function stopScanner() {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+
+  const startButton =
+    document.getElementById(
+      "startCameraButton"
+    );
+
+
+  const stopButton =
+    document.getElementById(
+      "stopCameraButton"
+    );
+
+
+  scanning = false;
+
+
+  try {
+
+    if (scanner) {
+
+      await scanner.stop();
+
+      await scanner.clear();
+
+    }
+
+  }
+
+
+  catch (error) {
+
+    console.log(
+      "Stop camera:",
+      error
+    );
+
+  }
+
+
+  scanner =
+    null;
+
+
+  stopButton.style.display =
+    "none";
+
+
+  startButton.disabled =
+    false;
+
+
+  startButton.textContent =
+    "📷 START CAMERA";
+
+
+  status.textContent =
+    "Camera stopped. Tap START CAMERA to scan again.";
+
+}
+
+
+
+/*
+ * MANUAL ID VERIFICATION
  */
 
 function verifyParticipant() {
-
 
   const input =
     document.getElementById(
@@ -883,7 +1198,6 @@ function openVerification(
   participantID
 ) {
 
-
   window.location.href =
     APPS_SCRIPT_URL +
     "?id=" +
@@ -894,7 +1208,7 @@ function openVerification(
 
 
 /*
- * ALLOW ENTER KEY
+ * ENTER KEY
  */
 
 document.getElementById(
@@ -903,7 +1217,6 @@ document.getElementById(
 .addEventListener(
   "keypress",
   function(event) {
-
 
     if (
       event.key === "Enter"
@@ -916,13 +1229,6 @@ document.getElementById(
   }
 );
 
-
-
-/*
- * START CAMERA
- */
-
-loadCameras();
 
 </script>
 
