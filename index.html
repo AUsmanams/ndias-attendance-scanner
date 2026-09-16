@@ -1,27 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>NDIAS 2026 | Attendance Scanner</title>
+
+  <script
+    src="https://unpkg.com/html5-qrcode"
+    type="text/javascript">
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(
+        135deg,
+        #eef7f0 0%,
+        #f8fbf8 50%,
+        #eaf4ec 100%
+      );
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px;
+      color: #222;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+    }
+
+    .header {
+      text-align: center;
+      padding: 28px 20px 24px;
+      background: linear-gradient(
+        135deg,
+        #064d18,
+        #0b6b24
+      );
+      color: white;
+      position: relative;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      background: #f4c542;
+    }
+
+    .nazas-logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 12px;
+      background: white;
+      border-radius: 50%;
+      padding: 5px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .header .subtitle {
+      margin-top: 7px;
+      font-size: 15px;
+      color: #e8f5eb;
+    }
+
+    .organization {
+      margin-top: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #f4c542;
+    }
+
+    .content {
+      padding: 22px;
+    }
+
+    .info-banner {
+      background: #f1f8f2;
+      border-left: 4px solid #0b5d1e;
+      padding: 13px 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #4b4b4b;
+    }
+
+    .info-banner strong {
+      color: #0b5d1e;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 20px;
+      background: #f8faf8;
+      border: 1px solid #e4ebe5;
+      border-radius: 14px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0b5d1e;
+      margin-bottom: 14px;
+    }
+
+    select,
+    input,
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 9px;
+      border: 1px solid #cfd8d1;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: #0b5d1e;
+      box-shadow: 0 0 0 3px rgba(11,93,30,0.10);
+    }
+
+    #reader {
+      width: 100%;
+      margin: 18px auto 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #111;
+      min-height: 20px;
+    }
+
+    #reader video {
+      width: 100% !important;
+      border-radius: 10px;
+    }
+
+    button {
+      background: linear-gradient(
+        135deg,
+        #0b5d1e,
+        #08752a
+      );
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      opacity: 0.92;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .start-button {
+      font-size: 17px;
+      padding: 15px;
+    }
+
+    .stop-button {
+      background: linear-gradient(
+        135deg,
+        #8b1e1e,
+        #b52b2b
+      );
+    }
+
+    .manual-button {
+      background: linear-gradient(
+        135deg,
+        #333333,
+        #555555
+      );
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 14px;
+      padding: 11px;
+      border-radius: 8px;
+      background: #eef3ef;
+      font-weight: 600;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .or {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+      color: #999;
+      font-size: 13px;
+    }
+
+    .instructions {
+      text-align: center;
+      color: #707070;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
+
+    .event-details {
+      margin-top: 18px;
+      padding: 17px;
+      background: #0b5d1e;
+      color: white;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .event-details-title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .event-details p {
+      margin: 5px 0;
+      font-size: 12px;
+      color: #eaf5ec;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 17px 20px;
+      border-top: 1px solid #eeeeee;
+      background: #fafafa;
+      font-size: 11px;
+      color: #777;
+    }
+
+    .footer strong {
+      color: #0b5d1e;
+    }
+
+    /* PARTICIPANT RESULT */
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid #0b5d1e;
+      background: white;
+    }
+
+    .result-header {
+      background: #0b5d1e;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .result-body {
+      padding: 18px;
+    }
+
+    .participant-name {
+      text-align: center;
+      font-size: 23px;
+      font-weight: 800;
+      color: #0b5d1e;
+      margin-bottom: 15px;
+    }
+
+    .detail {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 9px 0;
+      border-bottom: 1px solid #eeeeee;
+      font-size: 14px;
+    }
+
+    .detail:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-weight: bold;
+      color: #666;
+    }
+
+    .detail-value {
+      text-align: right;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .checkin-button {
+      margin-top: 18px;
+      font-size: 17px;
+      padding: 16px;
+    }
+
+    .new-scan-button {
+      background: #555;
+      margin-top: 10px;
+    }
+
+    .message {
+      text-align: center;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 9px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .success {
+      background: #e8f7ec;
+      color: #0b5d1e;
+      border: 1px solid #b9dfc1;
+    }
+
+    .error {
+      background: #fdeaea;
+      color: #a32020;
+      border: 1px solid #efb6b6;
+    }
+
+    @media (max-width: 600px) {
+
+      body {
+        padding: 0;
+      }
+
+      .container {
+        min-height: 100vh;
+        border-radius: 0;
+      }
+
+      .header {
+        padding: 25px 15px 22px;
+      }
+
+      .nazas-logo {
+        width: 80px;
+        height: 80px;
+      }
+
+      .header h1 {
+        font-size: 26px;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .section {
+        padding: 16px;
+      }
+
+      #reader {
+        margin-top: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+
+    <img
+      src="nazas-logo.png"
+      alt="NAZAS Logo"
+      class="nazas-logo"
+    >
+
+    <h1>NDIAS 2026</h1>
+
+    <div class="subtitle">
+      Attendance Verification Scanner
+    </div>
+
+    <div class="organization">
+      NATIONAL ASSOCIATION OF ZAZZAU STUDENTS
+    </div>
+
+  </div>
+
+
+  <div class="content">
+
+    <div class="info-banner">
+      <strong>NDIAS 2026 Attendance System</strong><br>
+      Scan a participant's QR code to verify registration
+      and record attendance.
+    </div>
+
+
+    <!-- SCANNER -->
+
+    <div class="section">
+
+      <div class="section-title">
+        📷 Scan Participant QR Code
+      </div>
+
+      <button
+        id="startCameraButton"
+        class="start-button"
+        onclick="startCamera()"
+      >
+        📷 START CAMERA
+      </button>
+
+      <select
+        id="cameraSelect"
+        disabled
+      >
+        <option>
+          Start camera first
+        </option>
+      </select>
+
+      <div id="reader"></div>
+
+      <button
+        id="stopCameraButton"
+        class="stop-button"
+        onclick="stopScanner()"
+        style="display:none;"
+      >
+        ⏹ STOP CAMERA
+      </button>
+
+      <div id="status">
+        Tap "START CAMERA" to begin scanning.
+      </div>
+
+      <div class="instructions">
+        Allow camera permission when your browser asks.
+        <br>
+        For best results, use the rear camera.
+      </div>
+
+    </div>
+
+
+    <div class="or">
+      — OR —
+    </div>
+
+
+    <!-- MANUAL ID -->
+
+    <div class="section">
+
+      <div class="section-title">
+        ⌨️ Enter Participant ID
+      </div>
+
+      <input
+        type="text"
+        id="participantID"
+        placeholder="Example: NDIAS/1.0/26/005"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+      >
+
+      <button
+        class="manual-button"
+        onclick="verifyParticipant()"
+      >
+        VERIFY PARTICIPANT
+      </button>
+
+    </div>
+
+
+    <!-- PARTICIPANT RESULT -->
+
+    <div
+      id="result"
+      class="result"
+    >
+
+      <div class="result-header">
+        ✓ PARTICIPANT FOUND
+      </div>
+
+      <div class="result-body">
+
+        <div
+          id="participantName"
+          class="participant-name">
+        </div>
+
+        <div class="detail">
+          <span class="detail-label">
+            Participant ID
+          </span>
+
+          <span
+            id="detailID"
+            class="detail-value">
+          </span>
+        </div>
+
+        <div class="detail">
+          <span class="detail-label">
+            Gender
+          </span>
+
+          <span
+            id="detailGender"
+            class="detail-value">
+          </span>
+        </div>
+
+        <div class="detail">
+          <span class="detail-label">
+            Age
+          </span>
+
+          <span
+            id="detailAge"
+            class="detail-value">
+          </span>
+        </div>
+
+        <div class="detail">
+          <span class="detail-label">
+            Institution
+          </span>
+
+          <span
+            id="detailInstitution"
+            class="detail-value">
+          </span>
+        </div>
+
+        <div class="detail">
+          <span class="detail-label">
+            LGA
+          </span>
+
+          <span
+            id="detailLGA"
+            class="detail-value">
+          </span>
+        </div>
+
+
+        <button
+          id="checkInButton"
+          class="checkin-button"
+          onclick="checkInParticipant()"
+        >
+          ✓ CHECK IN PARTICIPANT
+        </button>
+
+        <button
+          class="new-scan-button"
+          onclick="resetScanner()"
+        >
+          🔄 SCAN NEXT PARTICIPANT
+        </button>
+
+        <div
+          id="message"
+          class="message">
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- EVENT DETAILS -->
+
+    <div class="event-details">
+
+      <div class="event-details-title">
+        NDIAS 2026
+      </div>
+
+      <p>
+        Training: 21st – 23rd September 2026
+      </p>
+
+      <p>
+        Graduation: 26th September 2026
+      </p>
+
+      <p>
+        Federal University of Education, Zaria — Theatre One
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+
+    <strong>NAZAS NATIONAL BODY</strong>
+
+    <br>
+
+    NDIAS 2026 • Digital Innovation & AI Summit
+
+    <br>
+
+    Developed by: YDTech & AUconnection
+
+  </div>
+
+</div>
+
+
+<script>
+
 /* ==========================================
-   NDIAS 2026 ATTENDANCE API
-   CLOUDFLARE WORKER + FETCH
+   GOOGLE APPS SCRIPT API
 ========================================== */
 
 const APPS_SCRIPT_URL =
   "https://ndias-attendance-api.aliyuuabubakar99.workers.dev/";
 
+
+let scanner = null;
+let cameras = [];
+let scanning = false;
+
 let currentParticipantID = "";
 
 
 /* ==========================================
-   VERIFY FROM MANUAL ID
+   START CAMERA
+========================================== */
+
+async function startCamera() {
+
+  const status =
+    document.getElementById("status");
+
+  const startButton =
+    document.getElementById("startCameraButton");
+
+  const stopButton =
+    document.getElementById("stopCameraButton");
+
+  if (scanning) {
+    return;
+  }
+
+  status.textContent =
+    "Requesting camera permission...";
+
+  startButton.disabled = true;
+
+  try {
+
+    if (scanner) {
+
+      try {
+        await scanner.clear();
+      } catch (e) {}
+
+      scanner = null;
+    }
+
+    scanner =
+      new Html5Qrcode("reader");
+
+
+    await scanner.start(
+
+      {
+        facingMode: "environment"
+      },
+
+      {
+        fps: 10,
+
+        qrbox: function(
+          viewfinderWidth,
+          viewfinderHeight
+        ) {
+
+          const size =
+            Math.min(
+              viewfinderWidth,
+              viewfinderHeight
+            ) * 0.70;
+
+          return {
+            width: size,
+            height: size
+          };
+        },
+
+        aspectRatio: 1.0
+      },
+
+      function(decodedText) {
+
+        handleQRCode(decodedText);
+
+      },
+
+      function(errorMessage) {
+
+        // Normal scanning errors ignored.
+
+      }
+
+    );
+
+
+    scanning = true;
+
+    stopButton.style.display =
+      "block";
+
+    startButton.textContent =
+      "✓ CAMERA RUNNING";
+
+    status.textContent =
+      "Camera ready. Point it at the participant's QR code.";
+
+
+    await loadCameras();
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+    scanning = false;
+
+    startButton.disabled = false;
+
+    startButton.textContent =
+      "📷 START CAMERA";
+
+    stopButton.style.display =
+      "none";
+
+    status.textContent =
+      "Unable to start the camera. Please check camera permission.";
+
+  }
+
+}
+
+
+/* ==========================================
+   LOAD CAMERAS
+========================================== */
+
+async function loadCameras() {
+
+  const select =
+    document.getElementById("cameraSelect");
+
+  try {
+
+    cameras =
+      await Html5Qrcode.getCameras();
+
+    select.innerHTML = "";
+
+    if (
+      !cameras ||
+      cameras.length === 0
+    ) {
+
+      select.innerHTML =
+        "<option>Camera unavailable</option>";
+
+      select.disabled = true;
+
+      return;
+    }
+
+
+    cameras.forEach(
+      function(camera, index) {
+
+        const option =
+          document.createElement("option");
+
+        option.value =
+          camera.id;
+
+        option.textContent =
+          camera.label ||
+          "Camera " + (index + 1);
+
+        select.appendChild(option);
+
+      }
+    );
+
+
+    let preferredCamera =
+      cameras[0];
+
+
+    for (
+      let i = 0;
+      i < cameras.length;
+      i++
+    ) {
+
+      const label =
+        (
+          cameras[i].label ||
+          ""
+        ).toLowerCase();
+
+
+      if (
+        label.includes("back") ||
+        label.includes("rear") ||
+        label.includes("environment")
+      ) {
+
+        preferredCamera =
+          cameras[i];
+
+        break;
+      }
+    }
+
+
+    select.value =
+      preferredCamera.id;
+
+    select.disabled =
+      false;
+
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* ==========================================
+   HANDLE QR CODE
+========================================== */
+
+async function handleQRCode(decodedText) {
+
+  if (
+    !decodedText ||
+    !scanning
+  ) {
+    return;
+  }
+
+  scanning = false;
+
+
+  const status =
+    document.getElementById("status");
+
+
+  status.textContent =
+    "✓ QR detected. Verifying participant...";
+
+
+  try {
+
+    if (scanner) {
+
+      await scanner.stop();
+      await scanner.clear();
+
+      scanner = null;
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+
+  verifyParticipantByID(
+    decodedText.trim()
+  );
+
+}
+
+
+/* ==========================================
+   VERIFY PARTICIPANT
 ========================================== */
 
 function verifyParticipant() {
 
   const input =
-    document.getElementById("participantID");
+    document.getElementById(
+      "participantID"
+    );
 
-  const participantID =
+  const value =
     input.value.trim();
 
-  if (!participantID) {
+
+  if (!value) {
 
     showMessage(
       "Please enter a Participant ID.",
@@ -33,15 +965,17 @@ function verifyParticipant() {
     return;
   }
 
-  verifyParticipantByID(participantID);
+
+  verifyParticipantByID(value);
+
 }
 
 
 /* ==========================================
-   VERIFY PARTICIPANT BY ID
+   API VERIFICATION
 ========================================== */
 
-async function verifyParticipantByID(
+function verifyParticipantByID(
   participantID
 ) {
 
@@ -54,89 +988,54 @@ async function verifyParticipantByID(
   status.textContent =
     "Checking participant registration...";
 
-  try {
+  const url =
+    APPS_SCRIPT_URL +
+    "?api=verify" +
+    "&id=" +
+    encodeURIComponent(participantID);
 
-    const url =
-      APPS_SCRIPT_URL +
-      "?api=verify" +
-      "&id=" +
-      encodeURIComponent(
-        participantID
-      );
+  fetch(url, {
+    method: "GET",
+    cache: "no-store"
+  })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("Server returned " + response.status);
+      }
+      return response.text();
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
 
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
+      if (data && data.found) {
+        displayParticipant(data);
+      } else {
+        document.getElementById(
+          "result"
+        ).style.display = "none";
 
-    if (!response.ok) {
+        showMessage(
+          "❌ PARTICIPANT NOT FOUND",
+          false
+        );
 
-      throw new Error(
-        "Server returned HTTP " +
-        response.status
-      );
-    }
-
-    const data =
-      await response.json();
-
-    if (
-      data &&
-      data.found === true
-    ) {
-
-      displayParticipant(data);
-
-      status.textContent =
-        "Participant verified successfully.";
-
-    } else {
-
-      document.getElementById(
-        "result"
-      ).style.display =
-        "none";
+        status.textContent =
+          "Participant ID was not found in the registration database.";
+      }
+    })
+    .catch(function(error) {
+      console.error("Verification error:", error);
 
       showMessage(
-        data &&
-        data.message
-          ? "❌ " + data.message
-          : "❌ PARTICIPANT NOT FOUND",
+        "Unable to connect to the attendance server.",
         false
       );
 
       status.textContent =
-        "Participant ID was not found in the registration database.";
-    }
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Verification error:",
-      error
-    );
-
-    document.getElementById(
-      "result"
-    ).style.display =
-      "none";
-
-    showMessage(
-      "Unable to connect to the attendance server.",
-      false
-    );
-
-    status.textContent =
-      "Connection error. Please try again.";
-
-  }
-
+        "Connection error. Please try again.";
+    });
 }
 
 
@@ -193,6 +1092,12 @@ function displayParticipant(data) {
   ).style.display =
     "none";
 
+
+  document.getElementById(
+    "status"
+  ).textContent =
+    "Participant verified successfully.";
+
 }
 
 
@@ -200,7 +1105,7 @@ function displayParticipant(data) {
    CHECK IN PARTICIPANT
 ========================================== */
 
-async function checkInParticipant() {
+function checkInParticipant() {
 
   if (!currentParticipantID) {
 
@@ -212,121 +1117,78 @@ async function checkInParticipant() {
     return;
   }
 
-
   const button =
     document.getElementById(
       "checkInButton"
     );
-
 
   button.disabled = true;
 
   button.textContent =
     "CHECKING IN...";
 
+  const url =
+    APPS_SCRIPT_URL +
+    "?api=checkin" +
+    "&id=" +
+    encodeURIComponent(currentParticipantID);
 
-  try {
+  fetch(url, {
+    method: "GET",
+    cache: "no-store"
+  })
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("Server returned " + response.status);
+      }
+      return response.text();
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
 
-    const url =
-      APPS_SCRIPT_URL +
-      "?api=checkin" +
-      "&id=" +
-      encodeURIComponent(
-        currentParticipantID
-      );
+      if (data && data.success) {
 
+        showMessage(
+          "✓ CHECK-IN SUCCESSFUL<br>" +
+          data.name +
+          "<br>" +
+          data.day +
+          " • " +
+          data.time,
+          true
+        );
 
-    const response =
-      await fetch(
-        url,
-        {
-          method: "GET",
-          cache: "no-store"
-        }
-      );
+      } else {
 
+        showMessage(
+          data && data.message
+            ? "❌ " + data.message
+            : "❌ CHECK-IN FAILED",
+          false
+        );
 
-    if (!response.ok) {
-
-      throw new Error(
-        "Server returned HTTP " +
-        response.status
-      );
-    }
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      data &&
-      data.success === true
-    ) {
-
-      showMessage(
-
-        "✓ CHECK-IN SUCCESSFUL<br>" +
-        (data.name || "") +
-        "<br>" +
-        (data.day || "") +
-        " • " +
-        (data.time || ""),
-
-        true
-
-      );
-
-    }
-
-    else {
+      }
+    })
+    .catch(function(error) {
+      console.error("Check-in error:", error);
 
       showMessage(
-
-        data &&
-        data.message
-
-          ? "❌ " +
-            data.message
-
-          : "❌ CHECK-IN FAILED",
-
+        "Unable to connect to the attendance server.",
         false
-
       );
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.error(
-      "Check-in error:",
-      error
-    );
-
-    showMessage(
-      "Unable to connect to the attendance server.",
-      false
-    );
-
-  }
-
-  finally {
-
-    button.disabled = false;
-
-    button.textContent =
-      "✓ CHECK IN PARTICIPANT";
-
-  }
-
+    })
+    .finally(function() {
+      button.disabled = false;
+      button.textContent =
+        "✓ CHECK IN PARTICIPANT";
+    });
 }
 
 
 /* ==========================================
-   DISPLAY MESSAGE
+   MESSAGE
 ========================================== */
 
 function showMessage(
@@ -360,7 +1222,7 @@ function showMessage(
 
 
 /* ==========================================
-   RESET FOR NEXT PARTICIPANT
+   RESET
 ========================================== */
 
 async function resetScanner() {
@@ -400,34 +1262,219 @@ async function resetScanner() {
     ).disabled =
       false;
 
-
     document.getElementById(
       "startCameraButton"
     ).textContent =
       "📷 START CAMERA";
-
   }
 
 }
 
 
 /* ==========================================
-   ENTER KEY FOR MANUAL ID
+   CAMERA SWITCH
 ========================================== */
 
-document
-  .getElementById("participantID")
-  .addEventListener(
-    "keypress",
-    function(event) {
+document.getElementById(
+  "cameraSelect"
+)
+.addEventListener(
+  "change",
+  async function() {
 
-      if (
-        event.key === "Enter"
-      ) {
+    const selectedCamera =
+      this.value;
 
-        verifyParticipant();
+    if (
+      !selectedCamera ||
+      !scanner ||
+      !scanning
+    ) {
+      return;
+    }
 
-      }
+
+    const status =
+      document.getElementById(
+        "status"
+      );
+
+
+    status.textContent =
+      "Switching camera...";
+
+
+    scanning = false;
+
+
+    try {
+
+      await scanner.stop();
+      await scanner.clear();
+
+
+      scanner =
+        new Html5Qrcode(
+          "reader"
+        );
+
+
+      await scanner.start(
+
+        selectedCamera,
+
+        {
+          fps: 10,
+
+          qrbox: function(
+            viewfinderWidth,
+            viewfinderHeight
+          ) {
+
+            const size =
+              Math.min(
+                viewfinderWidth,
+                viewfinderHeight
+              ) * 0.70;
+
+            return {
+              width: size,
+              height: size
+            };
+
+          },
+
+          aspectRatio: 1.0
+
+        },
+
+
+        function(decodedText) {
+
+          handleQRCode(
+            decodedText
+          );
+
+        },
+
+
+        function(errorMessage) {
+
+          // Normal scanning errors ignored.
+
+        }
+
+      );
+
+
+      scanning = true;
+
+
+      status.textContent =
+        "Camera ready. Scan the QR code.";
 
     }
-  );
+
+    catch (error) {
+
+      console.error(error);
+
+      status.textContent =
+        "Unable to switch camera.";
+
+    }
+
+  }
+);
+
+
+/* ==========================================
+   STOP CAMERA
+========================================== */
+
+async function stopScanner() {
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+  const startButton =
+    document.getElementById(
+      "startCameraButton"
+    );
+
+  const stopButton =
+    document.getElementById(
+      "stopCameraButton"
+    );
+
+
+  scanning = false;
+
+
+  try {
+
+    if (scanner) {
+
+      await scanner.stop();
+      await scanner.clear();
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+
+  scanner = null;
+
+
+  stopButton.style.display =
+    "none";
+
+
+  startButton.disabled =
+    false;
+
+
+  startButton.textContent =
+    "📷 START CAMERA";
+
+
+  status.textContent =
+    "Camera stopped. Tap START CAMERA to scan again.";
+
+}
+
+
+/* ==========================================
+   ENTER KEY
+========================================== */
+
+document.getElementById(
+  "participantID"
+)
+.addEventListener(
+  "keypress",
+  function(event) {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      verifyParticipant();
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
